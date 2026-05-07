@@ -48,4 +48,68 @@ public class BookingRequestBuilder {
                 .phone("12345617890")
                 .build();
     }
+
+    public static BookingRequest invalidFirstAndLastnameBooking(String firstname, String lastname) {
+        int offset = (int)(System.currentTimeMillis() % 200) + 200;
+        return BookingRequest.builder()
+                .roomid(new Random().nextInt(100) + 1)
+                .firstname(firstname)
+                .lastname(lastname)
+                .depositpaid(true)
+                .bookingdates(BookingDates.builder()
+                        .checkin(DateUtils.futureDate(offset))
+                        .checkout(DateUtils.futureDate(offset + 3))
+                        .build())
+                .email("test+" + System.currentTimeMillis() + "@example.com")
+                .phone("12345617890")
+                .build();
+    }
+
+    public static BookingRequest invalidDatesBooking(String checkin, String checkout) {
+        int offset = getUniqueOffset();
+        return BookingRequest.builder()
+                .roomid(new Random().nextInt(900) + 100)
+                .firstname("John")
+                .lastname("Doe")
+                .depositpaid(true)
+                .bookingdates(BookingDates.builder()
+                        .checkin(checkin)
+                        .checkout(checkout)
+                        .build())
+                .email("test+" + System.currentTimeMillis() + "@example.com")
+                .phone("12345617890")
+                .build();
+    }
+
+    public static BookingRequest invalidEmail(String email) {
+        int offset = getUniqueOffset();
+        return BookingRequest.builder()
+                .roomid(new Random().nextInt(900) + 100)
+                .firstname("John")
+                .lastname("Doe")
+                .depositpaid(true)
+                .bookingdates(BookingDates.builder()
+                        .checkin(DateUtils.futureDate(offset))
+                        .checkout(DateUtils.futureDate(offset + 3))
+                        .build())
+                .email(email)
+                .phone("12345617890")
+                .build();
+    }
+
+    public static BookingRequest invalidPhonenumber(String phonenumber) {
+        int offset = getUniqueOffset();
+        return BookingRequest.builder()
+                .roomid(new Random().nextInt(900) + 100)
+                .firstname("John")
+                .lastname("Doe")
+                .depositpaid(true)
+                .bookingdates(BookingDates.builder()
+                        .checkin(DateUtils.futureDate(offset))
+                        .checkout(DateUtils.futureDate(offset + 3))
+                        .build())
+                .email("test+" + System.currentTimeMillis() + "@example.com")
+                .phone(phonenumber)
+                .build();
+    }
 }

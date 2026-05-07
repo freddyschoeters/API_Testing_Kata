@@ -129,4 +129,38 @@ public class BookingStepDefinitions {
         Response response = bookingClient.deleteBookingWithoutAuth(bookingId);
         ScenarioContext.get().setLastResponse(response);
     }
+
+    @When("I create a booking with firstname {string} and lastname {string}")
+    public void iCreateABookingWithFirstnameAndLastname(String firstname, String lastname) {
+        BookingRequest request = BookingRequestBuilder.invalidFirstAndLastnameBooking(firstname, lastname);
+        Response response = bookingClient.createBooking(request);
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @When("I create a booking with invalid dates {string} and {string}")
+    public void iCreateABookingWithInvalidDates(String checkin, String checkout) {
+        BookingRequest request = BookingRequestBuilder.invalidDatesBooking(checkin, checkout);
+        Response response = bookingClient.createBooking(request);
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @When("I create a booking with an invalid email {string}")
+    public void iCreateABookingWithAnInvalidEmail(String email) {
+        BookingRequest request = BookingRequestBuilder.invalidEmail(email);
+        Response response = bookingClient.createBooking(request);
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @When("I create a booking with an invalid phone number {string}")
+    public void iCreateABookingWithAnInvalidPhoneNumber(String phone) {
+        BookingRequest request = BookingRequestBuilder.invalidPhonenumber(phone);
+        Response response = bookingClient.createBooking(request);
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @Then("the response should contain error message")
+    public void theResponseShouldContainErrorMessage() {
+        ResponseValidator.assertBodyFieldNotNull(
+                ScenarioContext.get().getLastResponse(), "errors");
+    }
 }
