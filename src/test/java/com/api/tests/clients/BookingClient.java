@@ -20,4 +20,11 @@ public class BookingClient {
                 .body(request)
                 .post(ApiConstants.BOOKING_ENDPOINT);
     }
+
+    public Response getBookingById(int bookingId, String token) {
+        log.info("GET /booking/{}", bookingId);
+        return RequestSpecifications.authenticatedSpec(token)
+                .pathParam("id", bookingId)
+                .get(ApiConstants.BOOKING_BY_ID);
+    }
 }

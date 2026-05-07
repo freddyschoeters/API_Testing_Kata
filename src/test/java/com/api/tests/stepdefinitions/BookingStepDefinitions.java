@@ -5,6 +5,7 @@ import com.api.tests.builders.BookingRequestBuilder;
 import com.api.tests.clients.BookingClient;
 import com.api.tests.hooks.ScenarioContext;
 import com.api.tests.models.request.BookingRequest;
+import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
@@ -53,5 +54,28 @@ public class BookingStepDefinitions {
         ResponseValidator.assertJsonSchema(
                 ScenarioContext.get().getLastResponse(),
                 "schemas/booking-response-schema.json");
+    }
+
+    @Given("a valid booking exists")
+    public void aValidBookingExists() {
+        BookingRequest request = BookingRequestBuilder.validBooking();
+        Response response = bookingClient.createBooking(request);
+        ResponseValidator.assertStatusCode(response, 201);
+        int bookingId = response.jsonPath().getInt("bookingid");
+        ScenarioContext.get().setLastCreatedBookingId(bookingId);
+    }
+
+    @When("I retrieve the booking with a valid token")
+    public void iRetrieveTheBookingWithValidToken() {
+        int bookingId = ScenarioContext.get().getLastCreatedBookingId();
+        String token = ScenarioContext.get().getAuthToken();
+        Response response = bookingClient.getBookingById(bookingId, token);
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @Then("the response should contain field {string} with value {string}")
+    public void theResponseShouldContainFieldWithValue(String field, String value) {
+        ResponseValidator.assertBodyContains(
+                ScenarioContext.get().getLastResponse(), field, value);
     }
 }
