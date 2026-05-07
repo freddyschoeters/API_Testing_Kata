@@ -40,6 +40,12 @@ public class BookingStepDefinitions {
     public void theResponseShouldContainBookingDetails() {
         Response response = ScenarioContext.get().getLastResponse();
         ResponseValidator.assertBodyFieldNotNull(response, "bookingid");
+        ResponseValidator.assertBodyFieldNotNull(response, "roomid");
+        ResponseValidator.assertBodyFieldNotNull(response, "firstname");
+        ResponseValidator.assertBodyFieldNotNull(response, "lastname");
+        ResponseValidator.assertBodyFieldNotNull(response, "depositpaid");
+        ResponseValidator.assertBodyFieldNotNull(response, "bookingdates.checkin");
+        ResponseValidator.assertBodyFieldNotNull(response, "bookingdates.checkout");
     }
 
     @Then("the response should match the booking schema")
