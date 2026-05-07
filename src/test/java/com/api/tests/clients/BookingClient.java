@@ -27,4 +27,19 @@ public class BookingClient {
                 .pathParam("id", bookingId)
                 .get(ApiConstants.BOOKING_BY_ID);
     }
+
+    public Response updateBooking(int bookingId, BookingRequest request, String token) {
+        log.info("PUT /booking/{}", bookingId);
+        return RequestSpecifications.authenticatedSpec(token)
+                .body(request)
+                .pathParam("id", bookingId)
+                .put(ApiConstants.BOOKING_BY_ID);
+    }
+
+    public Response deleteBooking(int bookingId, String token) {
+        log.info("DELETE /booking/{}", bookingId);
+        return RequestSpecifications.authenticatedSpec(token)
+                .pathParam("id", bookingId)
+                .delete(ApiConstants.BOOKING_BY_ID);
+    }
 }

@@ -8,7 +8,7 @@ import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
 
 /**
- * Bootstraps RestAssur ed with base URI and shared request settings.
+ * Bootstraps RestAssured with base URI and shared request settings.
  * Call setup() once before the test suite runs.
  */
 public class RestAssuredConfig {

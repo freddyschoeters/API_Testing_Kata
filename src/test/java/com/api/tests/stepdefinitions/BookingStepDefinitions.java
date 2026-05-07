@@ -5,9 +5,9 @@ import com.api.tests.builders.BookingRequestBuilder;
 import com.api.tests.clients.BookingClient;
 import com.api.tests.hooks.ScenarioContext;
 import com.api.tests.models.request.BookingRequest;
-import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.cucumber.java.en.Given;
 import io.restassured.response.Response;
 
 public class BookingStepDefinitions {
@@ -63,6 +63,10 @@ public class BookingStepDefinitions {
         ResponseValidator.assertStatusCode(response, 201);
         int bookingId = response.jsonPath().getInt("bookingid");
         ScenarioContext.get().setLastCreatedBookingId(bookingId);
+        ScenarioContext.get().setLastCheckinDate(
+                request.getBookingdates().getCheckin());
+        ScenarioContext.get().setLastCheckoutDate(
+                request.getBookingdates().getCheckout());
     }
 
     @When("I retrieve the booking with a valid token")
@@ -77,5 +81,24 @@ public class BookingStepDefinitions {
     public void theResponseShouldContainFieldWithValue(String field, String value) {
         ResponseValidator.assertBodyContains(
                 ScenarioContext.get().getLastResponse(), field, value);
+    }
+
+    @When("I update the booking with valid details")
+    public void iUpdateTheBookingWithValidDetails() {
+        int bookingId = ScenarioContext.get().getLastCreatedBookingId();
+        String token = ScenarioContext.get().getAuthToken();
+        String checkin = ScenarioContext.get().getLastCheckinDate();
+        String checkout = ScenarioContext.get().getLastCheckoutDate();
+        BookingRequest request = BookingRequestBuilder.updatedBooking(checkin, checkout);
+        Response response = bookingClient.updateBooking(bookingId, request, token);
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @When("I delete the booking with a valid token")
+    public void iDeleteTheBookingWithValidToken() {
+        int bookingId = ScenarioContext.get().getLastCreatedBookingId();
+        String token = ScenarioContext.get().getAuthToken();
+        Response response = bookingClient.deleteBooking(bookingId, token);
+        ScenarioContext.get().setLastResponse(response);
     }
 }

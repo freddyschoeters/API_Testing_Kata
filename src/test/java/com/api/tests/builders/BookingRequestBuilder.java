@@ -13,11 +13,13 @@ public class BookingRequestBuilder {
 
     private BookingRequestBuilder() {}
 
-    /**
-     * Returns a valid booking with sensible defaults.
-     */
+    private static int getUniqueOffset() {
+        // 700-900 days ahead = safely in 2028!
+        return (int)(System.currentTimeMillis() % 200) + 700;
+    }
+
     public static BookingRequest validBooking() {
-        int offset = (int)(System.currentTimeMillis() % 200) + 700;
+        int offset = getUniqueOffset();
         return BookingRequest.builder()
                 .roomid(new Random().nextInt(900) + 100)
                 .firstname("John")
@@ -28,6 +30,21 @@ public class BookingRequestBuilder {
                         .checkout(DateUtils.futureDate(offset + 3))
                         .build())
                 .email("john.doe+" + System.currentTimeMillis() + "@example.com")
+                .phone("12345617890")
+                .build();
+    }
+
+    public static BookingRequest updatedBooking(String checkin, String checkout) {
+        return BookingRequest.builder()
+                .roomid(1)
+                .firstname("UpdatedName")
+                .lastname("UpdatedLastname")
+                .depositpaid(false)
+                .bookingdates(BookingDates.builder()
+                        .checkin(checkin)
+                        .checkout(checkout)
+                        .build())
+                .email("updated+" + System.currentTimeMillis() + "@example.com")
                 .phone("12345617890")
                 .build();
     }
