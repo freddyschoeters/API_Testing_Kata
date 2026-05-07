@@ -18,3 +18,19 @@ Feature: Booking API
     Then the response status should be 200
     And the response should contain field "firstname" with value "John"
     And the response should contain field "lastname" with value "Doe"
+
+  # ─── Update Booking ──────────────────────────────────────────────────────────
+  @wip @update
+  Scenario: Update a booking with valid authentication
+    Given a valid booking exists
+    When I update the booking with valid details
+    Then the response status should be 200
+    And the response should contain field "firstname" with value "UpdatedName"
+    And the response should contain field "lastname" with value "UpdatedLastname"
+
+  # ─── Delete Booking ──────────────────────────────────────────────────────────
+  @smoke @delete
+  Scenario: Delete a booking with valid authentication
+    Given a valid booking exists
+    When I delete the booking with a valid token
+    Then the response status should be 202
