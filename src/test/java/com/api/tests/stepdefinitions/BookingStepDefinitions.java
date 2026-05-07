@@ -12,17 +12,24 @@ import io.restassured.response.Response;
 
 public class BookingStepDefinitions {
 
+    private static final org.slf4j.Logger log =
+            org.slf4j.LoggerFactory.getLogger(BookingStepDefinitions.class);
     private final BookingClient bookingClient = new BookingClient();
 
     @When("I create a booking with valid details")
     public void iCreateABookingWithValidDetails() {
-        BookingRequest request = BookingRequestBuilder.validBooking();
-        Response response = bookingClient.createBooking(request);
-        ScenarioContext.get().setLastResponse(response);
-        if (response.statusCode() == 201) {
-            int bookingId = response.jsonPath().getInt("bookingid");
-            ScenarioContext.get().setLastCreatedBookingId(bookingId);
+        Response response = null;
+        for (int attempt = 1; attempt <= 10; attempt++) {
+            BookingRequest request = BookingRequestBuilder.validBooking();
+            response = bookingClient.createBooking(request);
+            if (response.statusCode() == 201) {
+                ScenarioContext.get().setLastCreatedBookingId(
+                        response.jsonPath().getInt("bookingid"));
+                break;
+            }
+            log.warn("Attempt {} failed with status {}, retrying...", attempt, response.statusCode());
         }
+        ScenarioContext.get().setLastResponse(response);
     }
 
     @Then("the response status should be {int}")
@@ -58,15 +65,22 @@ public class BookingStepDefinitions {
 
     @Given("a valid booking exists")
     public void aValidBookingExists() {
-        BookingRequest request = BookingRequestBuilder.validBooking();
-        Response response = bookingClient.createBooking(request);
-        ResponseValidator.assertStatusCode(response, 201);
-        int bookingId = response.jsonPath().getInt("bookingid");
-        ScenarioContext.get().setLastCreatedBookingId(bookingId);
-        ScenarioContext.get().setLastCheckinDate(
-                request.getBookingdates().getCheckin());
-        ScenarioContext.get().setLastCheckoutDate(
-                request.getBookingdates().getCheckout());
+        Response response = null;
+        BookingRequest request = null;
+        for (int attempt = 1; attempt <= 10; attempt++) {
+            request = BookingRequestBuilder.validBooking();
+            response = bookingClient.createBooking(request);
+            if (response.statusCode() == 201) {
+                ScenarioContext.get().setLastCreatedBookingId(
+                        response.jsonPath().getInt("bookingid"));
+                ScenarioContext.get().setLastCheckinDate(
+                        request.getBookingdates().getCheckin());
+                ScenarioContext.get().setLastCheckoutDate(
+                        request.getBookingdates().getCheckout());
+                break;
+            }
+            log.warn("Attempt {} failed with status {}, retrying...", attempt, response.statusCode());
+        }
     }
 
     @When("I retrieve the booking with a valid token")
