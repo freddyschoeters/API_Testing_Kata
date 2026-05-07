@@ -101,4 +101,18 @@ public class BookingStepDefinitions {
         Response response = bookingClient.deleteBooking(bookingId, token);
         ScenarioContext.get().setLastResponse(response);
     }
+
+    @When("I retrieve the booking without a token")
+    public void iRetrieveTheBookingWithoutToken() {
+        int bookingId = ScenarioContext.get().getLastCreatedBookingId();
+        Response response = bookingClient.getBookingByIdWithoutAuth(bookingId);
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @When("I delete the booking without a token")
+    public void iDeleteTheBookingWithoutToken() {
+        int bookingId = ScenarioContext.get().getLastCreatedBookingId();
+        Response response = bookingClient.deleteBookingWithoutAuth(bookingId);
+        ScenarioContext.get().setLastResponse(response);
+    }
 }
