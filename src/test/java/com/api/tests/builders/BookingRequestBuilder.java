@@ -4,6 +4,7 @@ import com.api.framework.utils.DateUtils;
 import com.api.tests.models.request.BookingDates;
 import com.api.tests.models.request.BookingRequest;
 import java.util.Random;
+import java.util.Map;
 
 /**
  * Factory class for building BookingRequest test data.
@@ -110,6 +111,22 @@ public class BookingRequestBuilder {
                         .build())
                 .email("test+" + System.currentTimeMillis() + "@example.com")
                 .phone(phonenumber)
+                .build();
+    }
+
+    public static BookingRequest validBookingFromTable(Map<String, String> data) {
+        int offset = (int)(System.currentTimeMillis() % 200) + 700;
+        return BookingRequest.builder()
+                .roomid(new Random().nextInt(900) + 100)
+                .firstname(data.get("firstname"))
+                .lastname(data.get("lastname"))
+                .depositpaid(true)
+                .bookingdates(BookingDates.builder()
+                        .checkin(DateUtils.futureDate(offset))
+                        .checkout(DateUtils.futureDate(offset + 3))
+                        .build())
+                .email(data.get("email"))
+                .phone(data.get("phone"))
                 .build();
     }
 }
