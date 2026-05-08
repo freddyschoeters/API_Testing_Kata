@@ -64,6 +64,18 @@ public class BookingStepDefinitions {
                 "schemas/booking-response-schema.json");
     }
 
+    @Then("the response should match the booking request data")
+    public void theResponseShouldMatchTheBookingRequestData() {
+        Response response = ScenarioContext.get().getLastResponse();
+        ResponseValidator.assertBodyContains(response, "firstname", "John");
+        ResponseValidator.assertBodyContains(response, "lastname", "Doe");
+        ResponseValidator.assertBodyContains(response, "depositpaid", true);
+        ResponseValidator.assertBodyContains(response, "bookingdates.checkin",
+                ScenarioContext.get().getLastCheckinDate());
+        ResponseValidator.assertBodyContains(response, "bookingdates.checkout",
+                ScenarioContext.get().getLastCheckoutDate());
+    }
+
     @Given("a valid booking exists")
     public void aValidBookingExists() {
         Response response = null;

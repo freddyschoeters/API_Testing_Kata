@@ -8,6 +8,7 @@ Feature: Create Booking
     And the response should contain a booking id
     And the response should contain the booking details
     And the response should match the booking schema
+    And the response should match the booking request data
 
   @smoke @create @datatable
   Scenario: Successfully create a booking using data table
