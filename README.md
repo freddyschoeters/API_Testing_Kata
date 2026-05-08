@@ -1,14 +1,17 @@
 # Booking API Test Automation
 
-Automated API tests for the Restful Booker platform.
+Automated API tests for the Restful Booker platform built with REST Assured, Cucumber and JUnit 5.
 
 ## Tools Used
 
 - Java 17
-- REST Assured
-- Cucumber
+- REST Assured 5.3.2
+- Cucumber 7.22.2
 - JUnit 5
-- Maven
+- Lombok
+- Jackson
+- Logback
+- JSON Schema Validator
 
 ## Prerequisites
 
@@ -37,42 +40,89 @@ mvn test
 ## Run by Tag
 
 ```bash
+# Run smoke tests only
 mvn test -Dcucumber.filter.tags="@smoke"
+
+# Run negative validation tests
 mvn test -Dcucumber.filter.tags="@negative"
+
+# Run security tests
 mvn test -Dcucumber.filter.tags="@security"
+
+# Run end to end test
+mvn test -Dcucumber.filter.tags="@e2e"
+
+# Run data table scenario
 mvn test -Dcucumber.filter.tags="@datatable"
+
+# Run all except work in progress
+mvn test -Dcucumber.filter.tags="not @wip"
 ```
 
-## Test Scenarios
+## Framework Architecture
+src/
+├── main/java/com/api/framework/
+│   ├── config/           # EnvironmentConfig — loads properties per environment
+│   ├── constants/        # ApiConstants — endpoints, HTTP status codes, headers
+│   ├── core/             # RestAssuredConfig — bootstraps REST Assured
+│   ├── specifications/   # RequestSpecifications — base and authenticated specs
+│   └── utils/            # DateUtils, ResponseValidator
+└── test/
+├── java/com/api/tests/
+│   ├── builders/     # BookingRequestBuilder — test data factory
+│   ├── clients/      # AuthClient, BookingClient — API interactions
+│   ├── hooks/        # TestHooks, ScenarioContext — lifecycle management
+│   ├── models/       # Request and Response models
+│   ├── runner/       # TestRunner — Cucumber JUnit 5 entry point
+│   └── stepdefinitions/ # BookingStepDefinitions
+└── resources/
+├── features/
+│   └── booking/  # Feature files per functionality
+├── schemas/       # JSON schema files for contract validation
+└── config/        # Environment properties
 
-**Smoke Tests**
-- Create booking with valid data
-- Create booking using data table
-- Get booking by ID
-- Delete booking
+## Test Coverage
 
-**Security Tests**
-- Get booking without authentication
-- Delete booking without authentication
+| Feature File | Tags | Description |
+|-------------|------|-------------|
+| `create_booking.feature` | @smoke @create | Create booking with valid data and Data Table |
+| `retrieve_booking.feature` | @smoke @read | Retrieve booking by ID with schema validation |
+| `delete_booking.feature` | @smoke @delete | Delete booking with valid authentication |
+| `update_booking.feature` | @wip @update | Update booking — work in progress |
+| `booking_authentication.feature` | @security | Unauthorized GET and DELETE return 403 |
+| `booking_validation.feature` | @negative | Invalid data, missing fields, boundary values |
+| `booking_e2e.feature` | @e2e @smoke | Full lifecycle — Create → Retrieve → Delete |
 
-**Negative Tests**
-- Create booking with short firstname and lastname
-- Create booking with invalid dates
-- Create booking with invalid email (Scenario Outline)
-- Create booking with short phone number
+## Key Design Patterns
 
-**Work In Progress**
-- Update booking (marked @wip)
+| Pattern | Where Used |
+|---------|-----------|
+| **Singleton** | ScenarioContext — shares data between steps |
+| **Builder** | BookingRequestBuilder — constructs test data |
+| **Factory** | RequestSpecifications — reusable request specs |
+| **Page Object** | BookingClient, AuthClient — abstracts API calls |
 
-## Test Report
+## Test Design Techniques
 
-After running, HTML report is available at:
-```
-target/cucumber-reports/cucumber.html
-```
+| Technique | Where Applied |
+|-----------|--------------|
+| **Boundary Value Analysis** | Firstname length — testing 1, 2 characters at boundary |
+| **Equivalence Partitioning** | Email validation — invalid.com, @test.com, plaintext, john@ |
+| **Negative Testing** | Missing fields, invalid data |
+| **Contract Testing** | JSON schema validation on create and retrieve responses |
+| **End to End Testing** | Full booking lifecycle scenario |
 
 ## Notes
 
-- Tests run against https://automationintesting.online
-- Retry logic handles conflicts in the shared environment
-- Framework follows BDD approach with Cucumber and Gherkin
+- Tests run against `https://automationintesting.online`
+- Retry logic handles 409 conflicts in the shared environment
+- Auth token is cached per scenario via ScenarioContext
+- `@wip` tag excludes in-progress scenarios from runs
+- Separate feature files follow Single Responsibility Principle
+
+## Test Report
+
+After running, HTML report available at:
+```
+target/cucumber-reports/cucumber.html
+```

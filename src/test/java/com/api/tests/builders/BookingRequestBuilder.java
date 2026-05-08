@@ -129,4 +129,22 @@ public class BookingRequestBuilder {
                 .phone(data.get("phone"))
                 .build();
     }
+
+    public static BookingRequest missingField(String fieldToOmit) {
+        int offset = getUniqueOffset();
+        BookingRequest.BookingRequestBuilder builder = BookingRequest.builder()
+                .roomid(new Random().nextInt(900) + 100)
+                .depositpaid(true)
+                .bookingdates(BookingDates.builder()
+                        .checkin(DateUtils.futureDate(offset))
+                        .checkout(DateUtils.futureDate(offset + 3))
+                        .build());
+
+        if (!fieldToOmit.equals("firstname")) builder.firstname("John");
+        if (!fieldToOmit.equals("lastname")) builder.lastname("Doe");
+        if (!fieldToOmit.equals("email")) builder.email("test+" + System.currentTimeMillis() + "@example.com");
+        if (!fieldToOmit.equals("phone")) builder.phone("12345617890");
+
+        return builder.build();
+    }
 }

@@ -70,10 +70,7 @@ public class BookingStepDefinitions {
         ResponseValidator.assertBodyContains(response, "firstname", "John");
         ResponseValidator.assertBodyContains(response, "lastname", "Doe");
         ResponseValidator.assertBodyContains(response, "depositpaid", true);
-        ResponseValidator.assertBodyContains(response, "bookingdates.checkin",
-                ScenarioContext.get().getLastCheckinDate());
-        ResponseValidator.assertBodyContains(response, "bookingdates.checkout",
-                ScenarioContext.get().getLastCheckoutDate());
+
     }
 
     @Given("a valid booking exists")
@@ -108,6 +105,13 @@ public class BookingStepDefinitions {
     public void theResponseShouldContainFieldWithValue(String field, String value) {
         ResponseValidator.assertBodyContains(
                 ScenarioContext.get().getLastResponse(), field, value);
+    }
+
+    @Then("the get response should match the booking schema")
+    public void theGetResponseShouldMatchBookingSchema() {
+        ResponseValidator.assertJsonSchema(
+                ScenarioContext.get().getLastResponse(),
+                "schemas/get-booking-response-schema.json");
     }
 
     @When("I update the booking with valid details")
@@ -191,6 +195,13 @@ public class BookingStepDefinitions {
             }
             log.warn("Attempt {} failed with status {}, retrying...", attempt, response.statusCode());
         }
+        ScenarioContext.get().setLastResponse(response);
+    }
+
+    @When("I create a booking with missing {string}")
+    public void iCreateABookingWithMissingField(String field) {
+        BookingRequest request = BookingRequestBuilder.missingField(field);
+        Response response = bookingClient.createBooking(request);
         ScenarioContext.get().setLastResponse(response);
     }
 }

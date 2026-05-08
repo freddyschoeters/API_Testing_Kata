@@ -8,3 +8,4 @@ Feature: Retrieve Booking
     Then the response status should be 200
     And the response should contain field "firstname" with value "John"
     And the response should contain field "lastname" with value "Doe"
+    And the get response should match the booking schema
