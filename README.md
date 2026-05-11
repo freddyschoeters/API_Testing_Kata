@@ -60,26 +60,26 @@ mvn test -Dcucumber.filter.tags="not @wip"
 ```
 
 ## Framework Architecture
-src/
-├── main/java/com/api/framework/
-│   ├── config/           # EnvironmentConfig — loads properties per environment
-│   ├── constants/        # ApiConstants — endpoints, HTTP status codes, headers
-│   ├── core/             # RestAssuredConfig — bootstraps REST Assured
-│   ├── specifications/   # RequestSpecifications — base and authenticated specs
-│   └── utils/            # DateUtils, ResponseValidator
-└── test/
-├── java/com/api/tests/
-│   ├── builders/     # BookingRequestBuilder — test data factory
-│   ├── clients/      # AuthClient, BookingClient — API interactions
-│   ├── hooks/        # TestHooks, ScenarioContext — lifecycle management
-│   ├── models/       # Request and Response models
-│   ├── runner/       # TestRunner — Cucumber JUnit 5 entry point
-│   └── stepdefinitions/ # BookingStepDefinitions
-└── resources/
-├── features/
-│   └── booking/  # Feature files per functionality
-├── schemas/       # JSON schema files for contract validation
-└── config/        # Environment properties
+
+**Main (src/main/java/com/api/framework/)**
+- `config/` — EnvironmentConfig loads properties per environment
+- `constants/` — ApiConstants centralises endpoints and HTTP status codes
+- `core/` — RestAssuredConfig bootstraps REST Assured base URI
+- `specifications/` — RequestSpecifications provides base and authenticated specs
+- `utils/` — DateUtils and ResponseValidator utilities
+
+**Test (src/test/java/com/api/tests/)**
+- `builders/` — BookingRequestBuilder follows Test Data Builder pattern
+- `clients/` — AuthClient and BookingClient abstract all API interactions
+- `hooks/` — TestHooks manages lifecycle, ScenarioContext shares data between steps
+- `models/` — BookingRequest, BookingDates, BookingResponse models
+- `runner/` — TestRunner configures Cucumber with JUnit 5
+- `stepdefinitions/` — BookingStepDefinitions implements Gherkin steps
+
+**Resources (src/test/resources/)**
+- `features/booking/` — Separate feature file per functionality
+- `schemas/` — JSON schema files for contract validation
+- `config/` — Environment properties files
 
 ## Test Coverage
 
