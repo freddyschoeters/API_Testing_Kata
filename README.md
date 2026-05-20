@@ -1,67 +1,128 @@
-# Kata API Testing in Java
+# Booking API Test Automation
 
-API Testing and Java Exercise: Setting up a Basic API Test Automation Framework.
+Automated API tests for the Restful Booker platform built with REST Assured, Cucumber and JUnit 5.
 
-## Objective
-The objective of this exercise is to evaluate your knowledge on API testing and Java by setting up a basic API Test Automation framework using Rest-Assured and Cucumber. You will need to create a test suite that executes a few tests against one endpoint of a hotel booking website and evaluates their responses.
+## Tools Used
 
-## Background
-The application under test is a simple hotel booking website where you can book a room and also send a form with a request.
+- Java 17
+- REST Assured 5.3.2
+- Cucumber 7.22.2
+- JUnit 5
+- Lombok
+- Jackson
+- Logback
+- JSON Schema Validator
 
-The website can be accessed at https://automationintesting.online/.
+## Prerequisites
 
-The Swagger documentation for the two endpoints you will be testing can be found at:
+- Java 17+
+- Maven 3.6+
 
-Booking endpoint: https://automationintesting.online/booking/swagger-ui/index.html  
-Optionally, you also have the Authentican endpoint: https://automationintesting.online/auth/swagger-ui/index.html
+## CI (Continuous Integration)
 
-### Swagger
-This website is an external application which is not in our control.  
-We noticed that the Swagger documentation is sometimes not available on the mentioned URL above.  
-As a backup, you can find the Swagger documentation in this repository at [src/test/resources/spec/booking.yaml](src/test/resources/spec/booking.yaml)
+This project uses GitHub Actions for continuous integration.
 
-The Open API Spec file is only supported in the Ultimate version of IntelliJ IDEA. But you can copy the content of the file and paste it in an online Swagger editor like https://editor.swagger.io/ to visualize the API documentation.
+- Automatically runs on every push to `kata-api-test-automation`
+- Can be triggered manually from the Actions tab
+- Test report uploaded as artifact after each run
 
-### Authentication
-In order to authenticate yourself, the required credentials are:
-* Username: `admin`
-* Password: `password`
+[![API Test Automation](https://github.com/Guruprakash-Mohan/API_Testing_Kata/actions/workflows/ci.yml/badge.svg?branch=kata-api-test-automation)](https://github.com/Guruprakash-Mohan/API_Testing_Kata/actions/workflows/ci.yml)
 
-## Task
-You are provided with an extremely basic API test project.
+## How to Run
 
-Please clone the project and create a new branch with your name. At the end, please push your branch to this project.
+```bash
+git clone https://github.com/Guruprakash-Mohan/API_Testing_Kata.git
+cd API_Testing_Kata
+git checkout kata-api-test-automation
+mvn test
+```
 
-The project to start from, can be found here: https://github.com/freddyschoeters/API_Testing_kata
+## Run by Tag
 
-Your task is to set up an API Test Automation framework from this project using Java, Rest-Assured, and Cucumber (feel free to add more dependencies if required).
+```bash
+# Run smoke tests only
+mvn test -Dcucumber.filter.tags="@smoke"
 
-It is up to you to define the test cases. You don’t need to have a full coverage, but you need to show enough variation on the types of tests that you would need to write and execute, and what to check in the response.
+# Run negative validation tests
+mvn test -Dcucumber.filter.tags="@negative"
 
-This kata has the purpose to evaluate both your technical skills as well as your testing skills.
+# Run security tests
+mvn test -Dcucumber.filter.tags="@security"
 
-`For this task, you will use the booking endpoint.`
+# Run end to end test
+mvn test -Dcucumber.filter.tags="@e2e"
 
+# Run data table scenario
+mvn test -Dcucumber.filter.tags="@datatable"
 
-## Requirements
-* Use Java as the programming language
-* Use Rest-Assured as the API testing library
-* Use Cucumber as the BDD framework
-* Design your codebase using a proper Java design pattern
-* Write good tests with correct checks
-* Use Git for version control and push your codebase to an open GitHub repository
-* Make regular commits to demonstrate your progress
+# Run all except work in progress
+mvn test -Dcucumber.filter.tags="not @wip"
+```
 
+## Framework Architecture
 
-## Deliverables
-* Your branch pushed in the provided project.
-* A comprehensive test suite covering the scenarios mentioned above
-* A well-structured codebase with proper design patterns and comments
-* Regular commits demonstrating your progress
+**Main (src/main/java/com/api/framework/)**
+- `config/` — EnvironmentConfig loads properties per environment
+- `constants/` — ApiConstants centralises endpoints and HTTP status codes
+- `core/` — RestAssuredConfig bootstraps REST Assured base URI
+- `specifications/` — RequestSpecifications provides base and authenticated specs
+- `utils/` — DateUtils and ResponseValidator utilities
 
-## Evaluation Criteria
-* Being able to successfully run the tests
-* Correctness and completeness of the test suite
-* Quality of the codebase (design patterns, structure, code quality, …)
-* Use of Rest-Assured and Cucumber features
-* Commit history and progress demonstration
+**Test (src/test/java/com/api/tests/)**
+- `builders/` — BookingRequestBuilder follows Test Data Builder pattern
+- `clients/` — AuthClient and BookingClient abstract all API interactions
+- `hooks/` — TestHooks manages lifecycle, ScenarioContext shares data between steps
+- `models/` — BookingRequest, BookingDates, BookingResponse models
+- `runner/` — TestRunner configures Cucumber with JUnit 5
+- `stepdefinitions/` — BookingStepDefinitions implements Gherkin steps
+
+**Resources (src/test/resources/)**
+- `features/booking/` — Separate feature file per functionality
+- `schemas/` — JSON schema files for contract validation
+- `config/` — Environment properties files
+
+## Test Coverage
+
+| Feature File | Tags | Description |
+|-------------|------|-------------|
+| `create_booking.feature` | @smoke @create | Create booking with valid data and Data Table |
+| `retrieve_booking.feature` | @smoke @read | Retrieve booking by ID with schema validation |
+| `delete_booking.feature` | @smoke @delete | Delete booking with valid authentication |
+| `update_booking.feature` | @wip @update | Update booking — work in progress |
+| `booking_authentication.feature` | @security | Unauthorized GET and DELETE return 403 |
+| `booking_validation.feature` | @negative | Invalid data, missing fields, boundary values |
+| `booking_e2e.feature` | @e2e @smoke | Full lifecycle — Create → Retrieve → Delete |
+
+## Key Design Patterns
+
+| Pattern | Where Used |
+|---------|-----------|
+| **Singleton** | ScenarioContext — shares data between steps |
+| **Builder** | BookingRequestBuilder — constructs test data |
+| **Factory** | RequestSpecifications — reusable request specs |
+| **Page Object** | BookingClient, AuthClient — abstracts API calls |
+
+## Test Design Techniques
+
+| Technique | Where Applied |
+|-----------|--------------|
+| **Boundary Value Analysis** | Firstname length — testing 1, 2 characters at boundary |
+| **Equivalence Partitioning** | Email validation — invalid.com, @test.com, plaintext, john@ |
+| **Negative Testing** | Missing fields, invalid data |
+| **Contract Testing** | JSON schema validation on create and retrieve responses |
+| **End to End Testing** | Full booking lifecycle scenario |
+
+## Notes
+
+- Tests run against `https://automationintesting.online`
+- Retry logic handles 409 conflicts in the shared environment
+- Auth token is cached per scenario via ScenarioContext
+- `@wip` tag excludes in-progress scenarios from runs
+- Separate feature files follow Single Responsibility Principle
+
+## Test Report
+
+After running, HTML report available at:
+```
+target/cucumber-reports/cucumber.html
+```
