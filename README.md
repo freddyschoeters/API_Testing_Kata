@@ -3,65 +3,55 @@
 API Testing and Java Exercise: Setting up a Basic API Test Automation Framework.
 
 ## Objective
-The objective of this exercise is to evaluate your knowledge on API testing and Java by setting up a basic API Test Automation framework using Rest-Assured and Cucumber. You will need to create a test suite that executes a few tests against one endpoint of a hotel booking website and evaluates their responses.
+Set up an API test framework using Java, Rest-Assured and Cucumber against the hotel booking API.
 
-## Background
-The application under test is a simple hotel booking website where you can book a room and also send a form with a request.
+Website: https://automationintesting.online
+Booking API docs: https://automationintesting.online/booking/swagger-ui/index.html
 
-The website can be accessed at https://automationintesting.online/.
+## How to run
 
-The Swagger documentation for the two endpoints you will be testing can be found at:
+Java 17 and Maven installed, then run:
 
-Booking endpoint: https://automationintesting.online/booking/swagger-ui/index.html  
-Optionally, you also have the Authentican endpoint: https://automationintesting.online/auth/swagger-ui/index.html
+```
+mvn test
+```
+Test report will be at: `target/cucumber-reports.html`
 
-### Swagger
-This website is an external application which is not in our control.  
-We noticed that the Swagger documentation is sometimes not available on the mentioned URL above.  
-As a backup, you can find the Swagger documentation in this repository at [src/test/resources/spec/booking.yaml](src/test/resources/spec/booking.yaml)
+## Project structure
 
-The Open API Spec file is only supported in the Ultimate version of IntelliJ IDEA. But you can copy the content of the file and paste it in an online Swagger editor like https://editor.swagger.io/ to visualize the API documentation.
+```
+src/test/java/com/booking/
+    api/
+        AuthApi.java          - handles login and returns the auth token
+        BookingApi.java       - all booking endpoint calls (GET, POST, PUT, PATCH, DELETE)
+    models/
+        Booking.java          - booking object with all fields from the API spec
+        BookingResponse.java  - the response wrapper returned by POST /booking
+    stepdefinitions/
+        BookingSteps.java     - maps feature file steps to Java code
+        TestContext.java      - stores shared data like token and booking ID between steps
+    TestRunner.java           - runs all the Cucumber tests
 
-### Authentication
-In order to authenticate yourself, the required credentials are:
-* Username: `admin`
-* Password: `password`
+src/test/resources/
+    features/
+        booking.feature       - all test scenarios in plain English
+        messages.feature      - original starter scenario (kept from starter project)
+    spec/
+        booking.yaml          - API swagger spec (provided with starter project)
+```
 
-## Task
-You are provided with an extremely basic API test project.
+## What I tested
 
-Please clone the project and create a new branch with your name. At the end, please push your branch to this project.
+- Health check - is the API running and returning UP status
+- POST /booking - create a booking with all required fields, check fields in response
+- POST /booking - validation error when firstname is too short (returns 400)
+- GET /booking/{id} - retrieve a booking using auth token, check firstname and date format
+- GET /booking/{id} - without a token should return 401 unauthorised
+- PUT /booking/{id} - update full booking, check lastname changed
+- PATCH /booking/{id} - partial update, check depositpaid changed
+- Full lifecycle - create, update, delete and verify it is gone (404)
 
-The project to start from, can be found here: https://github.com/freddyschoeters/API_Testing_kata
+## Dependencies added
 
-Your task is to set up an API Test Automation framework from this project using Java, Rest-Assured, and Cucumber (feel free to add more dependencies if required).
-
-It is up to you to define the test cases. You don’t need to have a full coverage, but you need to show enough variation on the types of tests that you would need to write and execute, and what to check in the response.
-
-This kata has the purpose to evaluate both your technical skills as well as your testing skills.
-
-`For this task, you will use the booking endpoint.`
-
-
-## Requirements
-* Use Java as the programming language
-* Use Rest-Assured as the API testing library
-* Use Cucumber as the BDD framework
-* Design your codebase using a proper Java design pattern
-* Write good tests with correct checks
-* Use Git for version control and push your codebase to an open GitHub repository
-* Make regular commits to demonstrate your progress
-
-
-## Deliverables
-* Your branch pushed in the provided project.
-* A comprehensive test suite covering the scenarios mentioned above
-* A well-structured codebase with proper design patterns and comments
-* Regular commits demonstrating your progress
-
-## Evaluation Criteria
-* Being able to successfully run the tests
-* Correctness and completeness of the test suite
-* Quality of the codebase (design patterns, structure, code quality, …)
-* Use of Rest-Assured and Cucumber features
-* Commit history and progress demonstration
+- jackson-databind - converts Java objects to JSON and back
+- cucumber-picocontainer - lets Cucumber share data between step definition classes
