@@ -14,9 +14,7 @@ import io.restassured.response.Response;
 import java.time.LocalDate;
 
 import static com.booking.builders.BookingTestDataBuilder.aBooking;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertFalse;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.*;
 
 public class BookingCreationSteps {
 
@@ -54,6 +52,48 @@ public class BookingCreationSteps {
         createBooking(builder);
     }
 
+    @When("I create a booking with a valid {string} of {string}")
+    public void iCreateABookingWithAValidFieldOf(String field, String value) {
+        BookingTestDataBuilder builder = aBooking();
+        switch (field) {
+            case "firstname" -> builder.withFirstname(value);
+            case "lastname" -> builder.withLastname(value);
+            case "email" -> builder.withEmail(value);
+            case "phone" -> builder.withPhone(value);
+            default -> throw new IllegalArgumentException("Unsupported field: " + field);
+        }
+        createBooking(builder);
+    }
+
+    @When("I create a booking without the {string} field")
+    public void iCreateABookingWithoutTheField(String field) {
+        BookingTestDataBuilder builder = aBooking();
+        switch (field) {
+            case "firstname" -> builder.withFirstname(null);
+            case "lastname" -> builder.withLastname(null);
+            case "email" -> builder.withEmail(null);
+            case "phone" -> builder.withPhone(null);
+            case "roomid" -> builder.withRoomid(0);
+            case "bookingdates" -> builder.withoutBookingdates();
+            default -> throw new IllegalArgumentException("Unsupported field: " + field);
+        }
+        createBooking(builder);
+    }
+
+    @When("I create a booking where checkout equals checkin")
+    public void iCreateABookingWhereCheckoutEqualsCheckin() {
+        LocalDate today = LocalDate.now().plusDays(5);
+        BookingTestDataBuilder builder = aBooking()
+                .withCheckin(today)
+                .withCheckout(today);
+        createBooking(builder);
+    }
+
+    @When("I create a booking with roomid 0")
+    public void iCreateABookingWithRoomidZero() {
+        createBooking(aBooking().withRoomid(0));
+    }
+
     private void createBooking(BookingTestDataBuilder builder) {
         context.set("createBookingResponse", bookingApiClient.create(builder.build()));
     }
@@ -71,7 +111,7 @@ public class BookingCreationSteps {
         ErrorResponse errorResponse = response.as(ErrorResponse.class);
         assertFalse(errorResponse.getError() == null || errorResponse.getError().isBlank());
     }
-    
+
     @Then("the response contains the created booking details")
     public void theResponseContainsTheCreatedBookingDetails() {
         Response createdBooking = context.get("createBookingResponse");

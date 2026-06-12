@@ -67,13 +67,23 @@ public class BookingTestDataBuilder {
         return this;
     }
 
+    public BookingTestDataBuilder withoutBookingdates() {
+        this.checkin = null;
+        this.checkout = null;
+        return this;
+    }
+
     public Booking build() {
+        BookingDates dates = (checkin == null && checkout == null)
+                ? null
+                : new BookingDates().checkin(checkin).checkout(checkout);
+
         return new Booking()
                 .roomid(roomid)
                 .firstname(firstname)
                 .lastname(lastname)
                 .depositpaid(depositpaid)
-                .bookingdates(new BookingDates().checkin(checkin).checkout(checkout))
+                .bookingdates(dates)
                 .email(email)
                 .phone(phone);
     }
