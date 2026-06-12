@@ -4,6 +4,7 @@ import com.booking.client.BookingApiClient;
 import com.booking.context.TestContext;
 import com.booking.mappers.BookingMapper;
 import com.booking.model.Booking;
+import com.booking.model.dto.BookingSearchResponse;
 import com.booking.model.dto.PatchBookingRequest;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -15,6 +16,7 @@ import java.time.LocalDate;
 
 import static com.booking.builders.BookingTestDataBuilder.aBooking;
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertTrue;
 
 public class BookingLifecycleSteps {
 
@@ -110,6 +112,23 @@ public class BookingLifecycleSteps {
         context.set("apiResponse", bookingApiClient.delete(bookingId, null));
     }
 
+    @When("I search for bookings in the booking's room with a valid token")
+    public void iSearchForBookingsInTheBookingsRoomWithAValidToken() {
+        Booking bookingBody = context.get("bookingBody");
+        String authToken = context.get("authToken");
+        context.set("apiResponse", bookingApiClient.search(bookingBody.getRoomid(), authToken));
+    }
+
+    @And("the search results include the created booking")
+    public void theSearchResultsIncludeTheCreatedBooking() {
+        Response response = context.get("apiResponse");
+        BookingSearchResponse searchResponse = response.as(BookingSearchResponse.class);
+        Booking expected = context.get("bookingBody");
+        boolean found = searchResponse.getBookings().stream()
+                .anyMatch(booking -> coreFieldsMatch(expected, booking));
+        assertTrue(found, "Expected the search results to include the created booking");
+    }
+
     @Then("the booking is deleted successfully")
     public void theBookingIsDeletedSuccessfully() {
         Response response = context.get("apiResponse");
@@ -135,5 +154,14 @@ public class BookingLifecycleSteps {
         assertEquals(expected.getDepositpaid(), actual.getDepositpaid());
         assertEquals(expected.getBookingdates().getCheckin(), actual.getBookingdates().getCheckin());
         assertEquals(expected.getBookingdates().getCheckout(), actual.getBookingdates().getCheckout());
+    }
+
+    private boolean coreFieldsMatch(Booking expected, Booking actual) {
+        return expected.getRoomid().equals(actual.getRoomid())
+                && expected.getFirstname().equals(actual.getFirstname())
+                && expected.getLastname().equals(actual.getLastname())
+                && expected.getDepositpaid().equals(actual.getDepositpaid())
+                && expected.getBookingdates().getCheckin().equals(actual.getBookingdates().getCheckin())
+                && expected.getBookingdates().getCheckout().equals(actual.getBookingdates().getCheckout());
     }
 }

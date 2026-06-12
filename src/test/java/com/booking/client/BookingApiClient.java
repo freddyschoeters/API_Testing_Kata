@@ -54,6 +54,13 @@ public class BookingApiClient {
                 .delete("/booking/{id}", id);
     }
 
+    public Response search(int roomId, String token) {
+        return authenticated(token)
+                .queryParam("roomid", roomId)
+                .when()
+                .get("/booking");
+    }
+
     public Response health() {
         return given().spec(requestSpec)
                 .when()
