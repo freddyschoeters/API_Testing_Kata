@@ -6,7 +6,6 @@ import com.booking.mappers.BookingMapper;
 import com.booking.model.Booking;
 import com.booking.model.dto.BookingSearchResponse;
 import com.booking.model.dto.PatchBookingRequest;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
@@ -49,7 +48,7 @@ public class BookingLifecycleSteps {
         context.set("apiResponse", bookingApiClient.getById(bookingId, null));
     }
 
-    @And("the booking details match what was created")
+    @Then("the booking details match what was created")
     public void theBookingDetailsMatchWhatWasCreated() {
         Response response = context.get("apiResponse");
         Booking retrieved = response.as(Booking.class);
@@ -82,7 +81,7 @@ public class BookingLifecycleSteps {
         context.set("apiResponse", bookingApiClient.update(bookingId, updated, null));
     }
 
-    @And("the response contains the updated booking details")
+    @Then("the response contains the updated booking details")
     public void theResponseContainsTheUpdatedBookingDetails() {
         Response response = context.get("apiResponse");
         Booking updated = BookingMapper.fromWrapperResponse(response);
@@ -119,7 +118,7 @@ public class BookingLifecycleSteps {
         context.set("apiResponse", bookingApiClient.search(bookingBody.getRoomid(), authToken));
     }
 
-    @And("the search results include the created booking")
+    @Then("the search results include the created booking")
     public void theSearchResultsIncludeTheCreatedBooking() {
         Response response = context.get("apiResponse");
         BookingSearchResponse searchResponse = response.as(BookingSearchResponse.class);

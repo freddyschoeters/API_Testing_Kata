@@ -14,7 +14,7 @@ import io.restassured.response.Response;
 import java.time.LocalDate;
 
 import static com.booking.builders.BookingTestDataBuilder.aBooking;
-import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
 
@@ -58,21 +58,21 @@ public class BookingCreationSteps {
         context.set("createBookingResponse", bookingApiClient.create(builder.build()));
     }
 
-    @When("the response contains a validation error")
+    @Then("the response contains a validation error")
     public void theResponseContainsAValidationError() {
         Response response = context.get("createBookingResponse");
         ValidationErrorResponse validationErrorResponse = response.as(ValidationErrorResponse.class);
         assertFalse(validationErrorResponse.getErrors().isEmpty());
     }
 
-    @When("the response contains an error message")
+    @Then("the response contains an error message")
     public void theResponseContainsAnErrorMessage() {
         Response response = context.get("createBookingResponse");
         ErrorResponse errorResponse = response.as(ErrorResponse.class);
         assertFalse(errorResponse.getError() == null || errorResponse.getError().isBlank());
     }
     
-    @When("the response contains the created booking details")
+    @Then("the response contains the created booking details")
     public void theResponseContainsTheCreatedBookingDetails() {
         Response createdBooking = context.get("createBookingResponse");
         Integer bookingId = BookingMapper.bookingIdFromResponse(createdBooking);
