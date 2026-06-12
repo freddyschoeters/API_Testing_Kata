@@ -147,7 +147,8 @@
                         </goals>
                         <configuration>
                             <sourceDirectory>${project.basedir}/src/test/resources/schemas</sourceDirectory>
-                            <outputDirectory>${project.build.directory}/generated-test-sources/jsonschema2pojo</outputDirectory>
+                            <outputDirectory>${project.build.directory}/generated-test-sources/jsonschema2pojo
+                            </outputDirectory>
                             <targetPackage>com.booking.model.dto</targetPackage>
                             <generateBuilders>true</generateBuilders>
                             <includeAdditionalProperties>false</includeAdditionalProperties>
@@ -177,6 +178,20 @@
                         </configuration>
                     </execution>
                 </executions>
+            </plugin>
+
+            <!-- Configures the test runner to generate Cucumber reports (HTML + JSON) in target/cucumber-reports/ after each test run -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <properties>
+                        <configurationParameters>
+                            cucumber.plugin=pretty,html:target/cucumber-reports/report.html,json:target/cucumber-reports/report.json
+                        </configurationParameters>
+                    </properties>
+                </configuration>
             </plugin>
         </plugins>
     </build>
