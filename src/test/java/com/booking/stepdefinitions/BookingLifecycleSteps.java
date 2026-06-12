@@ -2,8 +2,8 @@ package com.booking.stepdefinitions;
 
 import com.booking.client.BookingApiClient;
 import com.booking.context.TestContext;
+import com.booking.mappers.BookingMapper;
 import com.booking.model.Booking;
-import com.booking.model.dto.BookingWrapperResponse;
 import com.booking.model.dto.PatchBookingRequest;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Given;
@@ -71,7 +71,7 @@ public class BookingLifecycleSteps {
 
     @And("the response contains the updated booking details")
     public void theResponseContainsTheUpdatedBookingDetails() {
-        Booking updated = context.getLastResponse().as(BookingWrapperResponse.class).getBooking();
+        Booking updated = BookingMapper.fromWrapperResponse(context.getLastResponse());
         assertCoreFieldsMatch(context.getCreatedBooking(), updated);
     }
 
