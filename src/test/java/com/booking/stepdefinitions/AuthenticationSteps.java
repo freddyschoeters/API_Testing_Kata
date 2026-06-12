@@ -8,10 +8,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import io.restassured.response.Response;
 
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.blankOrNullString;
-import static org.hamcrest.Matchers.not;
-
 public class AuthenticationSteps {
 
     private final AuthApiClient authApiClient;
@@ -26,24 +22,28 @@ public class AuthenticationSteps {
     public void iAmAuthenticatedAsWithPassword(String username, String password) {
         Response response = authApiClient.login(username, password);
         response.then().statusCode(200);
-        context.setAuthToken(AuthMapper.tokenFromResponse(response));
+        context.set("authToken", AuthMapper.tokenFromResponse(response));
     }
 
     @When("I authenticate with username {string} and password {string}")
     public void iAuthenticateWithUsernameAndPassword(String username, String password) {
-        context.setLastResponse(authApiClient.login(username, password));
+        context.set("loginResponse", authApiClient.login(username, password));
     }
 
     @Then("the authentication is successful and a token is returned")
     public void theAuthenticationIsSuccessfulAndATokenIsReturned() {
-        context.getLastResponse().then().statusCode(200);
-        String token = AuthMapper.tokenFromResponse(context.getLastResponse());
-        assertThat(token, not(blankOrNullString()));
-        context.setAuthToken(token);
+        Response loginResponse = context.get("loginResponse");
+        loginResponse.then().statusCode(200);
+        String token = AuthMapper.tokenFromResponse(loginResponse);
+        if (token == null) {
+            throw new AssertionError("Expected a token but got none");
+        }
+        context.set("authToken", token);
     }
 
     @Then("the authentication fails with status code {int}")
     public void theAuthenticationFailsWithStatusCode(int statusCode) {
-        context.getLastResponse().then().statusCode(statusCode);
+        Response loginResponse = context.get("loginResponse");
+        loginResponse.then().statusCode(statusCode);
     }
 }

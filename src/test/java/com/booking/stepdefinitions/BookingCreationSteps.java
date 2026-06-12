@@ -7,20 +7,16 @@ import com.booking.mappers.BookingMapper;
 import com.booking.model.Booking;
 import com.booking.model.dto.ErrorResponse;
 import com.booking.model.dto.ValidationErrorResponse;
-import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
+import io.restassured.response.Response;
 
 import java.time.LocalDate;
 
 import static com.booking.builders.BookingTestDataBuilder.aBooking;
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.is;
-import static org.hamcrest.Matchers.notNullValue;
-import static org.hamcrest.Matchers.not;
-import static org.hamcrest.Matchers.empty;
-import static org.hamcrest.Matchers.blankOrNullString;
+import static org.junit.Assert.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertFalse;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
 
 public class BookingCreationSteps {
 
@@ -59,38 +55,44 @@ public class BookingCreationSteps {
     }
 
     private void createBooking(BookingTestDataBuilder builder) {
-        context.setLastResponse(bookingApiClient.create(builder.build()));
+        context.set("createBookingResponse", bookingApiClient.create(builder.build()));
+    }
+
+    @When("the response contains a validation error")
+    public void theResponseContainsAValidationError() {
+        Response response = context.get("createBookingResponse");
+        ValidationErrorResponse validationErrorResponse = response.as(ValidationErrorResponse.class);
+        assertFalse(validationErrorResponse.getErrors().isEmpty());
+    }
+
+    @When("the response contains an error message")
+    public void theResponseContainsAnErrorMessage() {
+        Response response = context.get("createBookingResponse");
+        ErrorResponse errorResponse = response.as(ErrorResponse.class);
+        assertFalse(errorResponse.getError() == null || errorResponse.getError().isBlank());
+    }
+    
+    @When("the response contains the created booking details")
+    public void theResponseContainsTheCreatedBookingDetails() {
+        Response createdBooking = context.get("createBookingResponse");
+        Integer bookingId = BookingMapper.bookingIdFromResponse(createdBooking);
+        assertNotNull(bookingId);
+
+        Booking booking = createdBooking.as(Booking.class);
+        assertEquals("Jim", booking.getFirstname());
+        assertEquals("Brown", booking.getLastname());
+        context.set("bookingId", bookingId);
     }
 
     @Then("the booking is created successfully")
     public void theBookingIsCreatedSuccessfully() {
-        context.getLastResponse().then().statusCode(201);
-    }
-
-    @And("the response contains the created booking details")
-    public void theResponseContainsTheCreatedBookingDetails() {
-        Booking created = context.getLastResponse().as(Booking.class);
-        Integer bookingId = BookingMapper.bookingIdFromResponse(context.getLastResponse());
-        assertThat(bookingId, notNullValue());
-        assertThat(created.getFirstname(), equalTo("Jim"));
-        assertThat(created.getLastname(), equalTo("Brown"));
-        context.setCreatedBookingId(bookingId);
+        Response response = context.get("createBookingResponse");
+        response.then().statusCode(201);
     }
 
     @Then("the booking creation fails with status code {int}")
     public void theBookingCreationFailsWithStatusCode(int statusCode) {
-        context.getLastResponse().then().statusCode(statusCode);
-    }
-
-    @And("the response contains a validation error")
-    public void theResponseContainsAValidationError() {
-        ValidationErrorResponse response = context.getLastResponse().as(ValidationErrorResponse.class);
-        assertThat(response.getErrors(), is(not(empty())));
-    }
-
-    @And("the response contains an error message")
-    public void theResponseContainsAnErrorMessage() {
-        ErrorResponse response = context.getLastResponse().as(ErrorResponse.class);
-        assertThat(response.getError(), is(not(blankOrNullString())));
+        Response response = context.get("createBookingResponse");
+        response.then().statusCode(statusCode);
     }
 }

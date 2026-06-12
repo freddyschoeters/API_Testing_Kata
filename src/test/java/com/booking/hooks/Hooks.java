@@ -41,12 +41,12 @@ public class Hooks {
 
     @After
     public void deleteCreatedBooking() {
-        Integer bookingId = context.getCreatedBookingId();
+        Integer bookingId = context.get("bookingId");
         if (bookingId == null) {
             return;
         }
 
-        String token = context.getAuthToken();
+        String token = context.get("authToken");
         if (token == null) {
             ApiConfig config = ApiConfig.getInstance();
             token = authApiClient.login(config.authUsername(), config.authPassword())
