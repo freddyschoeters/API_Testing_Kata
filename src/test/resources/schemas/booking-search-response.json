@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "BookingSearchResponse",
+  "type": "object",
+  "properties": {
+    "bookings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "existingJavaType": "com.booking.model.Booking"
+      }
+    }
+  }
+}

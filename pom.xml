@@ -47,6 +47,13 @@
             <scope>test</scope>
         </dependency>
 
+        <dependency>
+            <groupId>io.cucumber</groupId>
+            <artifactId>cucumber-picocontainer</artifactId>
+            <version>7.22.2</version>
+            <scope>test</scope>
+        </dependency>
+
         <!-- JUnit 5 Dependency -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
@@ -54,6 +61,139 @@
             <version>5.12.2</version>
             <scope>test</scope>
         </dependency>
+
+        <!-- Jackson, used to (de)serialize generated models/DTOs -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-databind</artifactId>
+            <version>2.18.4</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- Java 8 date/time (de)serialization support for the bookingdates fields -->
+        <dependency>
+            <groupId>com.fasterxml.jackson.datatype</groupId>
+            <artifactId>jackson-datatype-jsr310</artifactId>
+            <version>2.18.4</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- Annotations referenced by the openapi-generator generated model classes -->
+        <dependency>
+            <groupId>com.google.code.findbugs</groupId>
+            <artifactId>jsr305</artifactId>
+            <version>3.0.2</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>javax.annotation</groupId>
+            <artifactId>javax.annotation-api</artifactId>
+            <version>1.3.2</version>
+            <scope>test</scope>
+        </dependency>
     </dependencies>
+
+    <build>
+        <plugins>
+            <!-- Generates the Booking/BookingDates model from the OpenAPI spec -->
+            <plugin>
+                <groupId>org.openapitools</groupId>
+                <artifactId>openapi-generator-maven-plugin</artifactId>
+                <version>7.14.0</version>
+                <executions>
+                    <execution>
+                        <id>generate-booking-model</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <inputSpec>${project.basedir}/src/test/resources/spec/booking.yaml</inputSpec>
+                            <generatorName>java</generatorName>
+                            <output>${project.build.directory}/generated-test-sources/openapi</output>
+                            <modelPackage>com.booking.model</modelPackage>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                            <globalProperties>
+                                <models>Booking,BookingDates</models>
+                                <apis>false</apis>
+                                <supportingFiles>false</supportingFiles>
+                                <modelDocs>false</modelDocs>
+                                <modelTests>false</modelTests>
+                            </globalProperties>
+                            <configOptions>
+                                <library>native</library>
+                                <dateLibrary>java8</dateLibrary>
+                                <useBeanValidation>false</useBeanValidation>
+                                <useSwaggerAnnotations>false</useSwaggerAnnotations>
+                                <openApiNullable>false</openApiNullable>
+                                <serializableModel>false</serializableModel>
+                                <supportUrlQuery>false</supportUrlQuery>
+                            </configOptions>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Generates request/response DTOs not covered by the OpenAPI components, reusing the Booking model above -->
+            <plugin>
+                <groupId>org.jsonschema2pojo</groupId>
+                <artifactId>jsonschema2pojo-maven-plugin</artifactId>
+                <version>1.2.2</version>
+                <executions>
+                    <execution>
+                        <id>generate-booking-dtos</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>generate</goal>
+                        </goals>
+                        <configuration>
+                            <sourceDirectory>${project.basedir}/src/test/resources/schemas</sourceDirectory>
+                            <outputDirectory>${project.build.directory}/generated-test-sources/jsonschema2pojo
+                            </outputDirectory>
+                            <targetPackage>com.booking.model.dto</targetPackage>
+                            <generateBuilders>true</generateBuilders>
+                            <includeAdditionalProperties>false</includeAdditionalProperties>
+                            <addCompileSourceRoot>false</addCompileSourceRoot>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Registers both generated-sources directories as test source roots -->
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>build-helper-maven-plugin</artifactId>
+                <version>3.6.0</version>
+                <executions>
+                    <execution>
+                        <id>add-generated-test-sources</id>
+                        <phase>generate-test-sources</phase>
+                        <goals>
+                            <goal>add-test-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>${project.build.directory}/generated-test-sources/openapi/src/main/java</source>
+                                <source>${project.build.directory}/generated-test-sources/jsonschema2pojo</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+
+            <!-- Configures the test runner to generate Cucumber reports (HTML + JSON) in target/cucumber-reports/ after each test run -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>3.5.2</version>
+                <configuration>
+                    <properties>
+                        <configurationParameters>
+                            cucumber.plugin=pretty,html:target/cucumber-reports/report.html,json:target/cucumber-reports/report.json
+                        </configurationParameters>
+                    </properties>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 </project>

@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "BookingWrapperResponse",
+  "type": "object",
+  "properties": {
+    "bookingid": {
+      "type": "integer"
+    },
+    "booking": {
+      "type": "object",
+      "existingJavaType": "com.booking.model.Booking"
+    }
+  }
+}

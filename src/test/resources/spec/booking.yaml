@@ -292,16 +292,7 @@ components:
           type: boolean
           example: true
         bookingdates:
-          type: object
-          properties:
-            checkin:
-              type: string
-              format: date
-              example: 2025-10-13
-            checkout:
-              type: string
-              format: date
-              example: 2025-10-15
+          $ref: '#/components/schemas/BookingDates'
         email:
           type: string
           format: email
@@ -309,3 +300,16 @@ components:
         phone:
           type: string
           example: "1234567890"
+
+    BookingDates:
+      type: object
+      required: [checkin, checkout]
+      properties:
+        checkin:
+          type: string
+          format: date
+          example: 2025-10-13
+        checkout:
+          type: string
+          format: date
+          example: 2025-10-15
