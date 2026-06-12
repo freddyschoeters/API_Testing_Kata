@@ -1,0 +1,17 @@
+{
+  "$schema": "http://json-schema.org/draft-04/schema#",
+  "title": "PatchBookingRequest",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "depositpaid": {
+      "type": "boolean"
+    },
+    "firstname": {
+      "type": "string"
+    },
+    "lastname": {
+      "type": "string"
+    }
+  }
+}
