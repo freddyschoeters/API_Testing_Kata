@@ -48,14 +48,6 @@ public class BookingLifecycleSteps {
         context.set("apiResponse", bookingApiClient.getById(bookingId, null));
     }
 
-    @Then("the booking details match what was created")
-    public void theBookingDetailsMatchWhatWasCreated() {
-        Response response = context.get("apiResponse");
-        Booking retrieved = response.as(Booking.class);
-        Booking expected = context.get("bookingBody");
-        assertCoreFieldsMatch(expected, retrieved);
-    }
-
     @When("I update the booking with new details using a valid token")
     public void iUpdateTheBookingWithNewDetailsUsingAValidToken() {
         // Shift the dates a year past the booking's own current dates so the
@@ -79,14 +71,6 @@ public class BookingLifecycleSteps {
         Booking updated = aBooking().build();
         Integer bookingId = context.get("bookingId");
         context.set("apiResponse", bookingApiClient.update(bookingId, updated, null));
-    }
-
-    @Then("the response contains the updated booking details")
-    public void theResponseContainsTheUpdatedBookingDetails() {
-        Response response = context.get("apiResponse");
-        Booking updated = BookingMapper.fromWrapperResponse(response);
-        Booking expected = context.get("bookingBody");
-        assertCoreFieldsMatch(expected, updated);
     }
 
     @When("I partially update the booking's first name using a valid token")
@@ -118,6 +102,14 @@ public class BookingLifecycleSteps {
         context.set("apiResponse", bookingApiClient.search(bookingBody.getRoomid(), authToken));
     }
 
+    @Then("the response contains the updated booking details")
+    public void theResponseContainsTheUpdatedBookingDetails() {
+        Response response = context.get("apiResponse");
+        Booking updated = BookingMapper.fromWrapperResponse(response);
+        Booking expected = context.get("bookingBody");
+        assertCoreFieldsMatch(expected, updated);
+    }
+    
     @Then("the search results include the created booking")
     public void theSearchResultsIncludeTheCreatedBooking() {
         Response response = context.get("apiResponse");
@@ -144,6 +136,14 @@ public class BookingLifecycleSteps {
     public void theRequestIsRejectedWithStatusCode(int statusCode) {
         Response response = context.get("apiResponse");
         response.then().statusCode(statusCode);
+    }
+
+    @Then("the booking details match what was created")
+    public void theBookingDetailsMatchWhatWasCreated() {
+        Response response = context.get("apiResponse");
+        Booking retrieved = response.as(Booking.class);
+        Booking expected = context.get("bookingBody");
+        assertCoreFieldsMatch(expected, retrieved);
     }
 
     private void assertCoreFieldsMatch(Booking expected, Booking actual) {
