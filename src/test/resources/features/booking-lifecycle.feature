@@ -1,4 +1,4 @@
-@booking @lifecycle
+@booking-lifecycle
 Feature: Booking lifecycle
 
   As an authenticated administrator

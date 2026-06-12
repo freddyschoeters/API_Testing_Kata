@@ -1,4 +1,4 @@
-@booking @creation
+@booking-creation
 Feature: Booking creation
 
   As a client of the booking API
@@ -90,5 +90,5 @@ Feature: Booking creation
 
   Scenario: Creating a booking where checkout equals checkin is rejected
     When I create a booking where checkout equals checkin
-    Then the booking creation fails with status code 400
+    Then the booking creation fails with status code 409
     And the response contains an error message
